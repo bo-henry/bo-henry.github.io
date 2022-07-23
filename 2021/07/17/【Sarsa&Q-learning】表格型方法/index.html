@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>【Sarsa＆Q-learning】表格型方法 | Kevin Tang</title><meta name="keywords" content="强化学习,机器学习"><meta name="author" content="Kevin Tang"><meta name="copyright" content="Kevin Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Sarsa算法和Q-learning算法是两种基于表格的经典强化学习方法，本文将对比探究这两种方法在解决悬崖行走（CliffWalking）问题时的表现。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Sarsa＆Q-learning】表格型方法">
+<meta property="og:url" content="https://bo-henry.github.io/2021/07/17/%E3%80%90Sarsa&Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Kevin Tang">
+<meta property="og:description" content="Sarsa算法和Q-learning算法是两种基于表格的经典强化学习方法，本文将对比探究这两种方法在解决悬崖行走（CliffWalking）问题时的表现。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bo-henry.github.io/img/cover_img.webp">
+<meta property="article:published_time" content="2021-07-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T15:40:27.271Z">
+<meta property="article:author" content="Kevin Tang">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bo-henry.github.io/img/cover_img.webp"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://bo-henry.github.io/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":250},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【Sarsa＆Q-learning】表格型方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-23 23:40:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mycss.css"><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/404_friend.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/cover_img.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Kevin Tang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【Sarsa＆Q-learning】表格型方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-07-16T16:00:00.000Z" title="发表于 2021-07-17 00:00:00">2021-07-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">强化学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><span id="more"></span>
+<h1>1. 项目准备</h1>
+<h2 id="1-1-问题导入-6">1.1. 问题导入</h2>
+<p>Sarsa算法和Q-learning算法是两种基于表格的经典强化学习方法，本文将对比探究这两种方法在解决悬崖行走（Cliff Walking）问题时的表现。</p>
+<h2 id="1-2-环境介绍-2">1.2. 环境介绍</h2>
+<p>本次实验所用的训练环境为<code>gym</code>库的“悬崖行走”（<code>CliffWalking-v0</code>）环境。</p>
+<p><img src="https://img-blog.csdnimg.cn/20201114092322733.png#pic_center" alt=""></p>
+<p>如上图所示，该问题需要智能体从起点S点出发，到达终点G，同时避免掉进悬崖（cliff）。智能体每走一步就有<code>-1</code>分的惩罚，掉进悬崖会有<code>−100</code>分的惩罚，但游戏不会结束，智能体会回到出发点，然后游戏继续，直到智能体到达重点结束游戏。</p>
+<hr>
+<h1>2. SARSA算法</h1>
+<h2 id="2-1-算法简介">2.1. 算法简介</h2>
+<ul>
+<li>
+<p><code>SARSA</code>全称是<code>state-action-reward-state'-action'</code>，目的是学习特定的<code>state</code>下，特定<code>action</code>的价值Q，最终建立和优化一个Q表格，以<code>state</code>为行，<code>action</code>为列，根据与环境交互得到的<code>reward</code>来更新Q表格，更新公式为：<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/2ffeab4daf2b0dea32b1e8dd987e0c97.png" alt=""></p>
+</li>
+<li>
+<p>SARSA在训练中为了更好的探索环境，采用<code>ε-greedy</code>方式来训练，有一定概率随机选择动作输出。</p>
+</li>
+</ul>
+<h2 id="2-2-算法伪码">2.2. 算法伪码</h2>
+<p><img src="https://img-blog.csdnimg.cn/20201126204105242.png#pic_center" alt=""></p>
+<h2 id="2-3-算法实现">2.3. 算法实现</h2>
+<h3 id="1-前期准备">(1) 前期准备</h3>
+<ul>
+<li><strong>导入模块</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> gym</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>设置超参数</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TRAIN_EPOCHS = <span class="number">500</span>             <span class="comment"># 训练轮数</span></span><br><span class="line">LOG_GAP = <span class="number">50</span>                   <span class="comment"># 日志打印间隔</span></span><br><span class="line"></span><br><span class="line">LEARNING_RATE = <span class="number">0.1</span>            <span class="comment"># 学习率</span></span><br><span class="line">GAMMA = <span class="number">0.95</span>                   <span class="comment"># 奖励衰减因子</span></span><br><span class="line">EPSILON = <span class="number">0.1</span>                  <span class="comment"># 随机选取动作的概率</span></span><br><span class="line"></span><br><span class="line">MODEL_PATH = <span class="string">&quot;./sarsa.npy&quot;</span>     <span class="comment"># Q表格保存路径</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-构建智能体">(2) 构建智能体</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SarsaAgent</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, obs_dim, act_dim, learning_rate=<span class="number">0.01</span>,</span></span><br><span class="line"><span class="params">                 gamma=<span class="number">0.9</span>, epsilon=<span class="number">0.1</span></span>):</span><br><span class="line">        self.act_dim = act_dim      <span class="comment"># 动作维度，即可选动作数</span></span><br><span class="line">        self.lr = learning_rate     <span class="comment"># 学习率</span></span><br><span class="line">        self.gamma = gamma          <span class="comment"># reward衰减因子</span></span><br><span class="line">        self.epsilon = epsilon      <span class="comment"># 随机选取动作的概率</span></span><br><span class="line">        self.Q = np.zeros((obs_dim, act_dim))   <span class="comment"># Q表格</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 依据输入的状态，采样输出的动作值，包含探索</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">sample</span>(<span class="params">self, obs</span>):</span><br><span class="line">        <span class="keyword">if</span> np.random.uniform(<span class="number">0</span>, <span class="number">1</span>) &lt; self.epsilon:</span><br><span class="line">            <span class="keyword">return</span> np.random.choice(self.act_dim)   <span class="comment"># 随机探索选取动作</span></span><br><span class="line">        <span class="keyword">else</span>:  <span class="comment"># 根据table的Q值选动作</span></span><br><span class="line">            <span class="keyword">return</span> self.predict(obs)                <span class="comment"># 根据表格的Q值选动作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 依据输入的观察值，预测输出的动作值</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">predict</span>(<span class="params">self, obs</span>):</span><br><span class="line">        Q_list = self.Q[obs, :]</span><br><span class="line">        maxQ = np.<span class="built_in">max</span>(Q_list)</span><br><span class="line">        act_list = np.where(Q_list == maxQ)[<span class="number">0</span>]  <span class="comment"># 找出最大Q值对应的动作</span></span><br><span class="line">        <span class="keyword">return</span> np.random.choice(act_list)       <span class="comment"># 随机选取一个动作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新Q-Table的学习方法</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">learn</span>(<span class="params">self, obs, action, reward, next_obs, next_act, done</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;【On-Policy】</span></span><br><span class="line"><span class="string">            obs：交互前的状态，即s[t]；</span></span><br><span class="line"><span class="string">            action：本次交互选择的动作，即a[t]；</span></span><br><span class="line"><span class="string">            reward：本次动作获得的奖励，即r；</span></span><br><span class="line"><span class="string">            next_obs：本次交互后的状态，即s[t+1]；</span></span><br><span class="line"><span class="string">            next_act：根据当前Q表格，针对next_obs会选择的动作，即a[t+1]；</span></span><br><span class="line"><span class="string">            done：episode是否结束；</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        current_Q = self.Q[obs, action]     <span class="comment"># 当前的Q值</span></span><br><span class="line">        <span class="keyword">if</span> done:    <span class="comment"># 如果没有下一个状态了，即当前episode已结束</span></span><br><span class="line">            target_Q = reward       <span class="comment"># 目标值就是本次动作的奖励值</span></span><br><span class="line">        <span class="keyword">else</span>:       <span class="comment"># 否则采用SARSA的公式获取目标值</span></span><br><span class="line">            target_Q = reward + self.gamma * self.Q[next_obs, next_act]</span><br><span class="line">        self.Q[obs, action] += self.lr * (target_Q - current_Q)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 保存Q表格的数据到文件</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">save</span>(<span class="params">self, path</span>):</span><br><span class="line">        np.save(path, self.Q)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\033[1;32m Save data into file: `%s`. \033[0m&quot;</span> % path)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 从文件中读取数据到Q表格</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">restore</span>(<span class="params">self, path</span>):</span><br><span class="line">        self.Q = np.load(path)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\033[1;33m Load data from file: `%s`. \033[0m&quot;</span> % path)</span><br></pre></td></tr></table></figure>
+<h3 id="3-训练与测试">(3) 训练与测试</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># run_episode()是agent在一个episode中训练学习的函数，</span></span><br><span class="line"><span class="comment"># 它使用agent.sample()与环境交互，使用agent.learn()训练Q表格</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_episode</span>(<span class="params">env, agent, render=<span class="literal">False</span></span>):</span><br><span class="line">    done, total_steps, total_reward = <span class="literal">False</span>, <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    obs = env.reset()           <span class="comment"># 重置环境，开始新的episode</span></span><br><span class="line">    action = agent.sample(obs)  <span class="comment"># 根据状态选择动作</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> done:</span><br><span class="line">        next_obs, reward, done, _ = env.step(action)    <span class="comment"># 与环境进行一个交互</span></span><br><span class="line">        next_act = agent.sample(next_obs)               <span class="comment"># 根据状态选取动作</span></span><br><span class="line">        agent.learn(obs, action, reward, next_obs, next_act, done)  <span class="comment"># 学习</span></span><br><span class="line"></span><br><span class="line">        obs, action = next_obs, next_act    <span class="comment"># 记录新的状态和动作</span></span><br><span class="line">        total_reward += reward</span><br><span class="line">        total_steps += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> render:      <span class="comment"># 如果需要渲染一帧图形</span></span><br><span class="line">            env.render()</span><br><span class="line">    <span class="keyword">return</span> total_reward, total_steps</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># test_episode()是agent在一个episode中测试效果的函数，</span></span><br><span class="line"><span class="comment"># 需要评估agent能在一个episode中拿到多少奖励total_reward</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_episode</span>(<span class="params">env, agent, render=<span class="literal">False</span></span>):</span><br><span class="line">    agent.restore(MODEL_PATH)     <span class="comment"># 读取训练好的模型参数</span></span><br><span class="line">    done, total_reward = <span class="literal">False</span>, <span class="number">0</span></span><br><span class="line">    obs = env.reset()   <span class="comment"># 重置环境，开始新的episode</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> done:</span><br><span class="line">        action = agent.predict(obs)                     <span class="comment"># 根据状态预测动作</span></span><br><span class="line">        next_obs, reward, done, _ = env.step(action)    <span class="comment"># 与环境进行一个交互</span></span><br><span class="line">        total_reward += reward</span><br><span class="line">        obs = next_obs</span><br><span class="line">        <span class="keyword">if</span> render:      <span class="comment"># 如果需要渲染一帧图形</span></span><br><span class="line">            env.render()</span><br><span class="line">    <span class="keyword">return</span> total_reward</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">env = gym.make(<span class="string">&quot;CliffWalking-v0&quot;</span>)   <span class="comment"># 创建悬崖环境</span></span><br><span class="line"></span><br><span class="line">agent = SarsaAgent(</span><br><span class="line">    env.observation_space.n,        <span class="comment"># 状态的数量</span></span><br><span class="line">    env.action_space.n,             <span class="comment"># 动作的种类数</span></span><br><span class="line">    learning_rate=LEARNING_RATE,    <span class="comment"># 学习率</span></span><br><span class="line">    gamma=GAMMA,                    <span class="comment"># 奖励衰减因子</span></span><br><span class="line">    epsilon=EPSILON,                <span class="comment"># 随机选取动作的概率</span></span><br><span class="line">)   <span class="comment"># 创建SARSA智能体</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ep <span class="keyword">in</span> <span class="built_in">range</span>(TRAIN_EPOCHS + <span class="number">1</span>):</span><br><span class="line">    ep_reward, ep_steps = run_episode(env, agent, <span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">if</span> ep % LOG_GAP == <span class="number">0</span>:   <span class="comment"># 定期输出一次分数</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Episode: %3d; Steps: %3d; Reward: %.1f&quot;</span> %</span><br><span class="line">                (ep, ep_steps, ep_reward))</span><br><span class="line"></span><br><span class="line">agent.save(MODEL_PATH)   <span class="comment"># 保存模型参数（Q表格）</span></span><br><span class="line">test_reward = test_episode(env, agent, <span class="literal">False</span>)  <span class="comment"># 测试模型</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;【Eval】\t Reward: %.1f&quot;</span> % test_reward)</span><br></pre></td></tr></table></figure>
+<p>实验结果如下（Reward值越大，说明学习效果越好）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Episode:   0; Steps: 857; Reward: -2144.0</span><br><span class="line">Episode:  50; Steps:  33; Reward: -33.0</span><br><span class="line">Episode: 100; Steps:  30; Reward: -129.0</span><br><span class="line">Episode: 150; Steps:  44; Reward: -44.0</span><br><span class="line">Episode: 200; Steps:  15; Reward: -15.0</span><br><span class="line">Episode: 250; Steps:  19; Reward: -118.0</span><br><span class="line">Episode: 300; Steps:  26; Reward: -125.0</span><br><span class="line">Episode: 350; Steps:  19; Reward: -19.0</span><br><span class="line">Episode: 400; Steps:  17; Reward: -17.0</span><br><span class="line">Episode: 450; Steps:  22; Reward: -22.0</span><br><span class="line">Episode: 500; Steps:  19; Reward: -19.0</span><br><span class="line"></span><br><span class="line">【Eval】 	 Reward: -15.0</span><br></pre></td></tr></table></figure>
+<hr>
+<h1>3. Q-learning算法</h1>
+<h2 id="3-1-算法简介">3.1. 算法简介</h2>
+<ul>
+<li>
+<p><code>Q-learning</code>也是采用Q表格的方式存储Q值（状态动作价值），决策部分与SARSA是一样的，采用ε-greedy方式增加探索。</p>
+</li>
+<li>
+<p><code>Q-learning</code>跟<code>SARSA</code>不一样的地方是更新Q表格的方式。</p>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li>SARSA是on-policy的更新方式，先做出动作再更新。</li>
+<li>Q-learning是off-policy的更新方式，更新learn()时无需获取下一步实际做出的动作next_action，并假设下一步动作是取最大Q值的动作。</li>
+</ul>
+</blockquote>
+<ul>
+<li>Q-learning的更新公式为：<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/24e2bcce50ade8fa620ba5d24c5bb4e9.png" alt=""></li>
+</ul>
+<h2 id="3-2-算法伪码">3.2. 算法伪码</h2>
+<p><img src="https://img-blog.csdnimg.cn/20201127200236272.png#pic_center" alt=""></p>
+<h2 id="3-3-算法实现">3.3. 算法实现</h2>
+<h3 id="1-前期准备-2">(1) 前期准备</h3>
+<ul>
+<li><strong>导入模块</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> gym</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>设置超参数</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">TRAIN_EPOCHS = <span class="number">500</span>               <span class="comment"># 训练轮数</span></span><br><span class="line">LOG_GAP = <span class="number">50</span>                     <span class="comment"># 日志打印间隔</span></span><br><span class="line"></span><br><span class="line">LEARNING_RATE = <span class="number">0.1</span>              <span class="comment"># 学习率</span></span><br><span class="line">GAMMA = <span class="number">0.95</span>                     <span class="comment"># 奖励衰减因子</span></span><br><span class="line">EPSILON = <span class="number">0.1</span>                    <span class="comment"># 随机选取动作的概率</span></span><br><span class="line"></span><br><span class="line">MODEL_PATH = <span class="string">&quot;./q_learning.npy&quot;</span>  <span class="comment"># Q表格保存路径</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-构建智能体-2">(2) 构建智能体</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">QLearningAgent</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, obs_dim, act_dim, learning_rate=<span class="number">0.01</span>,</span></span><br><span class="line"><span class="params">                 gamma=<span class="number">0.9</span>, epsilon=<span class="number">0.1</span></span>):</span><br><span class="line">        self.act_dim = act_dim      <span class="comment"># 动作维度，即可选动作数</span></span><br><span class="line">        self.lr = learning_rate     <span class="comment"># 学习率</span></span><br><span class="line">        self.gamma = gamma          <span class="comment"># 奖励衰减因子</span></span><br><span class="line">        self.epsilon = epsilon      <span class="comment"># 随机选取动作的概率</span></span><br><span class="line">        self.Q = np.zeros((obs_dim, act_dim))   <span class="comment"># Q表格</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 依据输入的状态，采样输出的动作值，包含探索</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">sample</span>(<span class="params">self, obs</span>):</span><br><span class="line">        <span class="keyword">if</span> np.random.uniform(<span class="number">0</span>, <span class="number">1</span>) &lt; self.epsilon:</span><br><span class="line">            <span class="keyword">return</span> np.random.choice(self.act_dim)   <span class="comment"># 随机探索选取动作</span></span><br><span class="line">        <span class="keyword">else</span>:  <span class="comment"># 根据table的Q值选动作</span></span><br><span class="line">            <span class="keyword">return</span> self.predict(obs)                <span class="comment"># 根据表格的Q值选动作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 依据输入的观察值，预测输出的动作值</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">predict</span>(<span class="params">self, obs</span>):</span><br><span class="line">        Q_list = self.Q[obs, :]</span><br><span class="line">        maxQ = np.<span class="built_in">max</span>(Q_list)</span><br><span class="line">        act_list = np.where(Q_list == maxQ)[<span class="number">0</span>]  <span class="comment"># 找出最大Q值对应的动作</span></span><br><span class="line">        <span class="keyword">return</span> np.random.choice(act_list)       <span class="comment"># 随机选取一个动作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 更新Q-Table的学习方法</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">learn</span>(<span class="params">self, obs, action, reward, next_obs, done</span>):</span><br><span class="line">        <span class="string">&#x27;&#x27;&#x27;【Off-Policy】</span></span><br><span class="line"><span class="string">            obs：交互前的状态，即s[t]；</span></span><br><span class="line"><span class="string">            action：本次交互选择的动作，即a[t]；</span></span><br><span class="line"><span class="string">            reward：本次动作获得的奖励，即r；</span></span><br><span class="line"><span class="string">            next_obs：本次交互后的状态，即s[t+1]；</span></span><br><span class="line"><span class="string">            done：episode是否结束；</span></span><br><span class="line"><span class="string">        &#x27;&#x27;&#x27;</span></span><br><span class="line">        cur_Q = self.Q[obs, action]</span><br><span class="line">        <span class="keyword">if</span> done:</span><br><span class="line">            target_Q = reward</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            target_Q = reward + self.gamma * np.<span class="built_in">max</span>(self.Q[next_obs, :])</span><br><span class="line">        self.Q[obs, action] += self.lr * (target_Q - cur_Q)    <span class="comment"># 更新表格</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 保存Q表格的数据到文件</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">save</span>(<span class="params">self, path</span>):</span><br><span class="line">        np.save(path, self.Q)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\033[1;32m Save data into file: `%s`. \033[0m&quot;</span> % path)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 从文件中读取数据到Q表格</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">restore</span>(<span class="params">self, path</span>):</span><br><span class="line">        self.Q = np.load(path)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\033[1;33m Load data from file: `%s`. \033[0m&quot;</span> % path)</span><br></pre></td></tr></table></figure>
+<h3 id="3-训练与测试-2">(3) 训练与测试</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># run_episode()是agent在一个episode中训练学习的函数，</span></span><br><span class="line"><span class="comment"># 它使用agent.sample()与环境交互，使用agent.learn()训练Q表格</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_episode</span>(<span class="params">env, agent, render=<span class="literal">False</span></span>):</span><br><span class="line">    done, total_steps, total_reward = <span class="literal">False</span>, <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">    obs = env.reset()   <span class="comment"># 重开一局，重置环境</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> done:</span><br><span class="line">        action = agent.sample(obs)                      <span class="comment"># 根据状态选择动作</span></span><br><span class="line">        next_obs, reward, done, _ = env.step(action)    <span class="comment"># 与环境进行一次交互</span></span><br><span class="line">        agent.learn(obs, action, reward, next_obs, done)    <span class="comment"># 学习</span></span><br><span class="line"></span><br><span class="line">        obs = next_obs              <span class="comment"># 记录新的状态</span></span><br><span class="line">        total_reward += reward</span><br><span class="line">        total_steps += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> render:      <span class="comment"># 如果需要渲染一帧图形</span></span><br><span class="line">            env.render()</span><br><span class="line">    <span class="keyword">return</span> total_reward, total_steps</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># test_episode()是agent在一个episode中测试效果的函数，</span></span><br><span class="line"><span class="comment"># 需要评估agent能在一个episode中拿到多少奖励total_reward</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">test_episode</span>(<span class="params">env, agent, render=<span class="literal">False</span></span>):</span><br><span class="line">    agent.restore(MODEL_PATH)     <span class="comment"># 读取训练好的模型参数</span></span><br><span class="line">    done, total_reward = <span class="literal">False</span>, <span class="number">0</span></span><br><span class="line">    obs = env.reset()   <span class="comment"># 重开一局，重置环境</span></span><br><span class="line">    <span class="keyword">while</span> <span class="keyword">not</span> done:</span><br><span class="line">        action = agent.predict(obs)                     <span class="comment"># 根据状态选取动作</span></span><br><span class="line">        next_obs, reward, done, _ = env.step(action)    <span class="comment"># 与环境进行一次交互</span></span><br><span class="line">        total_reward += reward</span><br><span class="line">        obs = next_obs              <span class="comment"># 记录新的状态</span></span><br><span class="line">        <span class="keyword">if</span> render:</span><br><span class="line">            env.render()</span><br><span class="line">    <span class="keyword">return</span> total_reward</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">env = gym.make(<span class="string">&quot;CliffWalking-v0&quot;</span>)   <span class="comment"># 创建悬崖环境</span></span><br><span class="line"></span><br><span class="line">agent = QLearningAgent(</span><br><span class="line">    env.observation_space.n,        <span class="comment"># 状态维度</span></span><br><span class="line">    env.action_space.n,             <span class="comment"># 动作维度</span></span><br><span class="line">    learning_rate=LEARNING_RATE,    <span class="comment"># 学习率</span></span><br><span class="line">    gamma=GAMMA,                    <span class="comment"># 奖励衰减因子</span></span><br><span class="line">    epsilon=EPSILON,                <span class="comment"># 随机选取动作的概率</span></span><br><span class="line">)   <span class="comment"># 创建Q-learning智能体</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ep <span class="keyword">in</span> <span class="built_in">range</span>(TRAIN_EPOCHS + <span class="number">1</span>):</span><br><span class="line">    ep_reward, ep_steps = run_episode(env, agent, <span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">if</span> ep % LOG_GAP == <span class="number">0</span>:   <span class="comment"># 定期输出一次分数</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Episode: %3d; Steps: %3d; Reward: %.1f&quot;</span> %</span><br><span class="line">                (ep, ep_steps, ep_reward))</span><br><span class="line"></span><br><span class="line">agent.save(MODEL_PATH)    <span class="comment"># 保存模型参数（Q表格）</span></span><br><span class="line">test_reward = test_episode(env, agent, <span class="literal">False</span>)  <span class="comment"># 测试模型</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;【Eval】\t Reward: %.1f&quot;</span> % test_reward)</span><br></pre></td></tr></table></figure>
+<p>实验结果如下（Reward值越大，说明学习效果越好）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Episode:   0; Steps: 519; Reward: -1608.0</span><br><span class="line">Episode:  50; Steps:  20; Reward: -20.0</span><br><span class="line">Episode: 100; Steps:  21; Reward: -21.0</span><br><span class="line">Episode: 150; Steps:  47; Reward: -146.0</span><br><span class="line">Episode: 200; Steps:  18; Reward: -18.0</span><br><span class="line">Episode: 250; Steps:  30; Reward: -228.0</span><br><span class="line">Episode: 300; Steps:  20; Reward: -20.0</span><br><span class="line">Episode: 350; Steps:  13; Reward: -13.0</span><br><span class="line">Episode: 400; Steps:  17; Reward: -17.0</span><br><span class="line">Episode: 450; Steps:  14; Reward: -14.0</span><br><span class="line">Episode: 500; Steps:  50; Reward: -248.0</span><br><span class="line">   </span><br><span class="line">【Eval】 	 Reward: -13.0</span><br></pre></td></tr></table></figure>
+<h1>4. 实验结论</h1>
+<p>在解决悬崖行走问题的过程中，我们发现：</p>
+<ul>
+<li>Q-learning对环境的探索比较激进胆大，更倾向于最优路线</li>
+<li>SARSA对环境的探索就比较谨慎胆小，更倾向于安全路线</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/20201204154957110.png#pic_center" alt=""></p>
+<hr>
+<blockquote>
+<h1>写在最后</h1>
+<ul>
+<li>如果您发现项目存在问题，或者如果您有更好的建议，欢迎在下方评论区中留言讨论~</li>
+<li>这是本项目的链接：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/projectdetail/2250312?shared=1">实验项目 - AI Studio</a>，点击<code>fork</code>可直接在AI Studio运行~</li>
+<li>这是我的个人主页：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633">个人主页 - AI Studio</a>，来AI Studio互粉吧，等你哦~</li>
+</ul>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io">Kevin Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/">https://bo-henry.github.io/2021/07/17/【Sarsa&amp;Q-learning】表格型方法/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://bo-henry.github.io" target="_blank">Kevin Tang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></div><div class="post_share"><div class="social-share" data-image="/img/cover_img.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://jsdelivr.pai233.top/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/"><img class="prev-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【DQN】基于价值的强化学习方法</div></div></a></div><div class="next-post pull-right"><a href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/"><img class="next-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">强化学习相关理论基础</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-10</div><div class="title">强化学习相关理论基础</div></div></a></div><div><a href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-24</div><div class="title">【DQN】基于价值的强化学习方法</div></div></a></div><div><a href="/2020/08/23/%E3%80%90KMeans%E3%80%91%E5%9F%BA%E4%BA%8E%E7%BB%8F%E7%BA%AC%E5%BA%A6%E7%9A%84%E5%9F%8E%E5%B8%82%E8%81%9A%E7%B1%BB/" title="【KMeans】基于经纬度的城市聚类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-23</div><div class="title">【KMeans】基于经纬度的城市聚类</div></div></a></div><div><a href="/2020/08/11/%E3%80%90SVM%E3%80%91%E9%B8%A2%E5%B0%BE%E8%8A%B1%E5%88%86%E7%B1%BB/" title="【SVM】鸢尾花分类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-11</div><div class="title">【SVM】鸢尾花分类</div></div></a></div><div><a href="/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/" title="【线性回归】商品销量预测"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-05</div><div class="title">【线性回归】商品销量预测</div></div></a></div><div><a href="/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/" title="【决策树】个人信贷风险预测"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-15</div><div class="title">【决策树】个人信贷风险预测</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Twikoo</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/404_friend.gif'" alt="avatar"/></div><div class="author-info__name">Kevin Tang</div><div class="author-info__description">心在哪里，风景就在哪里</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://blog.csdn.net/TXK_Kevin?type=blog"><i class="fa fa-rss"></i><span>Follow CSDN</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/XinKai-Tang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633" target="_blank" title="AI Studio"><i class="fab fa-paypal"></i></a><a class="social-icon" href="mailto:kevin-tang@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Hi, welcome to my blog!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">1. 项目准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E9%97%AE%E9%A2%98%E5%AF%BC%E5%85%A5-6"><span class="toc-text">1.1. 问题导入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E7%8E%AF%E5%A2%83%E4%BB%8B%E7%BB%8D-2"><span class="toc-text">1.2. 环境介绍</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">2. SARSA算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E7%AE%97%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">2.1. 算法简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%AE%97%E6%B3%95%E4%BC%AA%E7%A0%81"><span class="toc-text">2.2. 算法伪码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="toc-text">2.3. 算法实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">(1) 前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9E%84%E5%BB%BA%E6%99%BA%E8%83%BD%E4%BD%93"><span class="toc-text">(2) 构建智能体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%AD%E7%BB%83%E4%B8%8E%E6%B5%8B%E8%AF%95"><span class="toc-text">(3) 训练与测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">3. Q-learning算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E7%AE%97%E6%B3%95%E7%AE%80%E4%BB%8B"><span class="toc-text">3.1. 算法简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E7%AE%97%E6%B3%95%E4%BC%AA%E7%A0%81"><span class="toc-text">3.2. 算法伪码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="toc-text">3.3. 算法实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87-2"><span class="toc-text">(1) 前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9E%84%E5%BB%BA%E6%99%BA%E8%83%BD%E4%BD%93-2"><span class="toc-text">(2) 构建智能体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%AE%AD%E7%BB%83%E4%B8%8E%E6%B5%8B%E8%AF%95-2"><span class="toc-text">(3) 训练与测试</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">4. 实验结论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">写在最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【UNet3+】遥感影像分割"/></a><div class="content"><a class="title" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割">【UNet3+】遥感影像分割</a><time datetime="2022-06-19T16:00:00.000Z" title="发表于 2022-06-20 00:00:00">2022-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【ResNet】肺炎CT影像识别"/></a><div class="content"><a class="title" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别">【ResNet】肺炎CT影像识别</a><time datetime="2022-05-30T16:00:00.000Z" title="发表于 2022-05-31 00:00:00">2022-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【DQN】基于价值的强化学习方法"/></a><div class="content"><a class="title" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法">【DQN】基于价值的强化学习方法</a><time datetime="2021-07-23T16:00:00.000Z" title="发表于 2021-07-24 00:00:00">2021-07-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【Sarsa＆Q-learning】表格型方法"/></a><div class="content"><a class="title" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法">【Sarsa＆Q-learning】表格型方法</a><time datetime="2021-07-16T16:00:00.000Z" title="发表于 2021-07-17 00:00:00">2021-07-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="强化学习相关理论基础"/></a><div class="content"><a class="title" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础">强化学习相关理论基础</a><time datetime="2021-07-09T16:00:00.000Z" title="发表于 2021-07-10 00:00:00">2021-07-10</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Kevin Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '2uIdkWJx5EqXJn89B8QtxrSR-gzGzoHsz',
+      appKey: 'UdKtAUs64MLpko3LlTLSrEdy',
+      avatar: 'monsterid',
+      placeholder: '如果您有好的想法，欢迎在评论区中留言讨论~\n昵称处填写QQ号可以快速填写QQ昵称与QQ邮箱哦~',
+      serverURLs: '',
+      emojiMaps: {"2233娘_卖萌":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_卖萌].png","2233娘_吃惊":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吃惊].png","2233娘_吐魂":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吐魂].png","2233娘_喝水":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_喝水].png","2233娘_困惑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_困惑].png","2233娘_大哭":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大哭].png","2233娘_大笑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大笑].png","2233娘_委屈":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_委屈].png","2233娘_怒":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_怒].png","2233娘_无言":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_无言].png","2233娘_汗":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_汗].png","2233娘_疑问":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_疑问].png","2233娘_第一":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_第一].png","2233娘_耶":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_耶].png","2233娘_郁闷":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_郁闷].png","btv_doge":"https://emotion.acs.pw/emotion/bilibili_tv_gif/doge.gif","btv_亲亲":"https://emotion.acs.pw/emotion/bilibili_tv_gif/亲亲.gif","btv_偷笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/偷笑.gif","btv_再见":"https://emotion.acs.pw/emotion/bilibili_tv_gif/再见.gif","btv_发怒":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发怒.gif","btv_发财":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发财.gif","btv_可爱":"https://emotion.acs.pw/emotion/bilibili_tv_gif/可爱.gif","btv_吐血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/吐血.gif","btv_呆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呆.gif","btv_呕吐":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呕吐.gif","btv_困":"https://emotion.acs.pw/emotion/bilibili_tv_gif/困.gif","btv_坏笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/坏笑.gif","btv_大佬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大佬.gif","btv_大哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大哭.gif","btv_委屈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/委屈.gif","btv_害羞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/害羞.gif","btv_尴尬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/尴尬.gif","btv_微笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/微笑.gif","btv_思考":"https://emotion.acs.pw/emotion/bilibili_tv_gif/思考.gif","btv_惊吓":"https://emotion.acs.pw/emotion/bilibili_tv_gif/惊吓.gif","btv_打脸":"https://emotion.acs.pw/emotion/bilibili_tv_gif/打脸.gif","btv_抓狂":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抓狂.gif","btv_抠鼻子":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抠鼻子.gif","btv_斜眼笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/斜眼笑.gif","btv_无奈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/无奈.gif","btv_晕":"https://emotion.acs.pw/emotion/bilibili_tv_gif/晕.gif","btv_流汗":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流汗.gif","btv_流鼻血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流鼻血.gif","btv_点赞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/点赞.gif","btv_生气":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生气.gif","btv_生病":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生病.gif","btv_疑问":"https://emotion.acs.pw/emotion/bilibili_tv_gif/疑问.gif","btv_白眼":"https://emotion.acs.pw/emotion/bilibili_tv_gif/白眼.gif","btv_睡着":"https://emotion.acs.pw/emotion/bilibili_tv_gif/睡着.gif","btv_笑哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/笑哭.gif","btv_腼腆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/腼腆.gif","btv_色":"https://emotion.acs.pw/emotion/bilibili_tv_gif/色.gif","btv_调皮":"https://emotion.acs.pw/emotion/bilibili_tv_gif/调皮.gif","btv_鄙视":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鄙视.gif","btv_闭嘴":"https://emotion.acs.pw/emotion/bilibili_tv_gif/闭嘴.gif","btv_难过":"https://emotion.acs.pw/emotion/bilibili_tv_gif/难过.gif","btv_馋":"https://emotion.acs.pw/emotion/bilibili_tv_gif/馋.gif","btv_黑人问号":"https://emotion.acs.pw/emotion/bilibili_tv_gif/黑人问号.gif","btv_鼓掌":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鼓掌.gif"},
+      enableQQ: true,
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://jsdelivr.pai233.top/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      document.getElementById('twikoo-count').innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://jsdelivr.pai233.top/npm/twikoo@1/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Valine' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://npm.elemecdn.com/leancloud-storage@3/dist/av-min.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/click-show-text.min.js" data-mobile="true" data-text="坚持真理,坚守理想,践行初心,担当使命,不怕牺牲,英勇斗争,对党忠诚,不负人民" data-fontsize="16px" data-random="false" async="async"></script><script>window.$crisp = [];
+window.CRISP_WEBSITE_ID = "ab72e8bd-a14d-4cbf-bf7d-ee26976f2477";
+(function () {
+  d = document;
+  s = d.createElement("script");
+  s.src = "https://client.crisp.chat/l.js";
+  s.async = 1;
+  d.getElementsByTagName("head")[0].appendChild(s);
+})();
+$crisp.push(["safe", true])
+
+if (true) {
+  $crisp.push(["do", "chat:hide"])
+  $crisp.push(["on", "chat:closed", function() {
+    $crisp.push(["do", "chat:hide"])
+  }])
+  var chatBtnFn = () => {
+    var chatBtn = document.getElementById("chat_btn")
+    chatBtn.addEventListener("click", function(){
+      $crisp.push(["do", "chat:show"])
+      $crisp.push(["do", "chat:open"])
+
+    });
+  }
+  chatBtnFn()
+} else {
+  if (false) {
+    function chatBtnHide () {
+      $crisp.push(["do", "chat:hide"])
+    }
+    function chatBtnShow () {
+      $crisp.push(["do", "chat:show"])
+    }
+  }
+}</script></div></body></html>

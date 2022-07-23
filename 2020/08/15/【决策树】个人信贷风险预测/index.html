@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>【决策树】个人信贷风险预测 | Kevin Tang</title><meta name="keywords" content="机器学习,分类问题"><meta name="author" content="Kevin Tang"><meta name="copyright" content="Kevin Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="请利用以往的信贷数据利用决策树构建一个风险控制模型，使其在后续的借贷业务中，能够提前识别出信贷风险，供投资者选择是否投资此项贷款。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【决策树】个人信贷风险预测">
+<meta property="og:url" content="https://bo-henry.github.io/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/index.html">
+<meta property="og:site_name" content="Kevin Tang">
+<meta property="og:description" content="请利用以往的信贷数据利用决策树构建一个风险控制模型，使其在后续的借贷业务中，能够提前识别出信贷风险，供投资者选择是否投资此项贷款。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bo-henry.github.io/img/cover_img.webp">
+<meta property="article:published_time" content="2020-08-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T15:06:11.248Z">
+<meta property="article:author" content="Kevin Tang">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="分类问题">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bo-henry.github.io/img/cover_img.webp"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://bo-henry.github.io/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":250},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【决策树】个人信贷风险预测',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-23 23:06:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mycss.css"><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/404_friend.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/cover_img.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Kevin Tang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【决策树】个人信贷风险预测</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2020-08-14T16:00:00.000Z" title="发表于 2020-08-15 00:00:00">2020-08-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">机器学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>1. 项目准备</h1>
+<h2 id="1-1-问题导入-11">1.1. 问题导入</h2>
+<p>随着技术的不断革新以及个人消费意识的改变，从互联网上借贷来满足生活需求或者实现个人增值，越来越受到大众的接受。请利用以往的信贷数据利用决策树构建一个风险控制模型，使其在后续的借贷业务中，能够提前识别出信贷风险，供投资者选择是否投资此项贷款。</p>
+<h2 id="1-2-数据集简介-9">1.2. 数据集简介</h2>
+<p>数据集中的数据是美国最大的P2P网贷交易平台Lending Club的历史数据，一共由9578行、14列数据构成：</p>
+<blockquote>
+<p>（1） <strong>credit.policy</strong><br>
+客户是否满足Lending Club的授信标准（1为是，0为否）<br>
+（2） <strong>purpose</strong><br>
+表示贷款的目的（例：信用卡还款，债务处理，教育，购买大件，中小企业经营等等）<br>
+（3） <strong>int.rate</strong><br>
+贷款利率（较高的贷款利率意味着较高的风险）<br>
+（4） <strong>installment</strong><br>
+每月分期还款额<br>
+（5） <strong>log.annual.inc</strong><br>
+借贷者的年收入的自然对数<br>
+（6） <strong>dti</strong><br>
+借贷者的债务收入比（贷款收入比例，Delt-to-income）<br>
+（7） <strong>fico</strong><br>
+美国个人评分系统的评分。FICO得出的分数在300-850分之间，分数越高说明客户的信用风险越小，但分数本身不能说明一个客户是好是坏，贷款方通常会将分数作为参考，来进行贷款决策。每个贷款方都有自己的贷款策略和标准，并且每种产品都会有自己的风险水平，从而决定了可以接受的信用分数水平。<br>
+（8） <strong>days.with.cr.line</strong><br>
+借贷者有信用额度的天数<br>
+（9） <strong>revol.bal</strong><br>
+借贷者的账户余额（尚未结清的金额）<br>
+（10） <strong>revol.util</strong><br>
+借贷者的信用账户利用率（使用的金额/授信的金额）<br>
+（11） <strong>inq.last.6mths</strong><br>
+借贷者在过去6个月被借款者咨询的次数<br>
+（12） <strong>delinq.2yrs</strong><br>
+借贷者在过去2年逾期还款超过30天的次数<br>
+（13） <strong>pub.rec</strong><br>
+借贷者公共事业记录差评的次数<br>
+（14） <strong>not.fully.paid</strong><br>
+表示不完全支付，要预测这个因变量，可供投资者选择是否投资此项贷款（0贷款，1不贷款）</p>
+</blockquote>
+<blockquote>
+<p>这是数据集的下载链接：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/datasetdetail/49208">Lending Club借贷数据 - AI Studio</a></p>
+</blockquote>
+<hr>
+<h1>2. 实验步骤</h1>
+<h2 id="2-0-导入模块-3">2.0. 导入模块</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> LabelEncoder</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.tree <span class="keyword">import</span> DecisionTreeClassifier</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, classification_report, confusion_matrix</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br></pre></td></tr></table></figure>
+<h2 id="2-1-数据预处理">2.1. 数据预处理</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&#x27;loan_data.csv&#x27;</span>)</span><br><span class="line">x = df.drop(<span class="string">&quot;not.fully.paid&quot;</span>, axis=<span class="number">1</span>)  <span class="comment"># 提取特征值（除“not.fully.paid”外的所有字段的值）</span></span><br><span class="line">y = df[<span class="string">&#x27;not.fully.paid&#x27;</span>]               <span class="comment"># 提取目标值（字段“not.fully.paid”对应的字段值）</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>数据的描述性统计分析</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(df.describe().T)</span><br><span class="line"><span class="comment"># 表头：特征数据个数，平均值，标准差，最小值，1/4中位数，1/2中位数，3/4中位数，最大值</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">                    count          mean           std         min  \</span><br><span class="line">credit.policy      9578.0      0.804970      0.396245    0.000000   </span><br><span class="line">int.rate           9578.0      0.122640      0.026847    0.060000   </span><br><span class="line">installment        9578.0    319.089413    207.071301   15.670000   </span><br><span class="line">log.annual.inc     9578.0     10.932117      0.614813    7.547502   </span><br><span class="line">dti                9578.0     12.606679      6.883970    0.000000   </span><br><span class="line">fico               9578.0    710.846314     37.970537  612.000000   </span><br><span class="line">days.with.cr.line  9578.0   4560.767197   2496.930377  178.958333   </span><br><span class="line">revol.bal          9578.0  16913.963876  33756.189557    0.000000   </span><br><span class="line">revol.util         9578.0     46.799236     29.014417    0.000000   </span><br><span class="line">inq.last.6mths     9578.0      1.577469      2.200245    0.000000   </span><br><span class="line">delinq.2yrs        9578.0      0.163708      0.546215    0.000000   </span><br><span class="line">pub.rec            9578.0      0.062122      0.262126    0.000000   </span><br><span class="line">not.fully.paid     9578.0      0.160054      0.366676    0.000000   </span><br><span class="line"></span><br><span class="line">                           25%          50%           75%           max  </span><br><span class="line">credit.policy         1.000000     1.000000      1.000000  1.000000e+00  </span><br><span class="line">int.rate              0.103900     0.122100      0.140700  2.164000e-01  </span><br><span class="line">installment         163.770000   268.950000    432.762500  9.401400e+02  </span><br><span class="line">log.annual.inc       10.558414    10.928884     11.291293  1.452835e+01  </span><br><span class="line">dti                   7.212500    12.665000     17.950000  2.996000e+01  </span><br><span class="line">fico                682.000000   707.000000    737.000000  8.270000e+02  </span><br><span class="line">days.with.cr.line  2820.000000  4139.958333   5730.000000  1.763996e+04  </span><br><span class="line">revol.bal          3187.000000  8596.000000  18249.500000  1.207359e+06  </span><br><span class="line">revol.util           22.600000    46.300000     70.900000  1.190000e+02  </span><br><span class="line">inq.last.6mths        0.000000     1.000000      2.000000  3.300000e+01  </span><br><span class="line">delinq.2yrs           0.000000     0.000000      0.000000  1.300000e+01  </span><br><span class="line">pub.rec               0.000000     0.000000      0.000000  5.000000e+00  </span><br><span class="line">not.fully.paid        0.000000     0.000000      0.000000  1.000000e+00  </span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>数据的相关性分析</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 相关系数绝对值越大，表示相关性越大；相关系数为正，表示正相关；相关系数为负，表示负相关</span></span><br><span class="line"><span class="built_in">print</span>(df.corr())</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">                   credit.policy  int.rate  installment  log.annual.inc  \</span><br><span class="line">credit.policy           1.000000 -0.294089     0.058770        0.034906   </span><br><span class="line">int.rate               -0.294089  1.000000     0.276140        0.056383   </span><br><span class="line">installment             0.058770  0.276140     1.000000        0.448102   </span><br><span class="line">log.annual.inc          0.034906  0.056383     0.448102        1.000000   </span><br><span class="line">dti                    -0.090901  0.220006     0.050202       -0.054065   </span><br><span class="line">fico                    0.348319 -0.714821     0.086039        0.114576   </span><br><span class="line">days.with.cr.line       0.099026 -0.124022     0.183297        0.336896   </span><br><span class="line">revol.bal              -0.187518  0.092527     0.233625        0.372140   </span><br><span class="line">revol.util             -0.104095  0.464837     0.081356        0.054881   </span><br><span class="line">inq.last.6mths         -0.535511  0.202780    -0.010419        0.029171   </span><br><span class="line">delinq.2yrs            -0.076318  0.156079    -0.004368        0.029203   </span><br><span class="line">pub.rec                -0.054243  0.098162    -0.032760        0.016506   </span><br><span class="line">not.fully.paid         -0.158119  0.159552     0.049955       -0.033439   </span><br><span class="line"></span><br><span class="line">                        dti      fico  days.with.cr.line  revol.bal  \</span><br><span class="line">credit.policy     -0.090901  0.348319           0.099026  -0.187518   </span><br><span class="line">int.rate           0.220006 -0.714821          -0.124022   0.092527   </span><br><span class="line">installment        0.050202  0.086039           0.183297   0.233625   </span><br><span class="line">log.annual.inc    -0.054065  0.114576           0.336896   0.372140   </span><br><span class="line">dti                1.000000 -0.241191           0.060101   0.188748   </span><br><span class="line">fico              -0.241191  1.000000           0.263880  -0.015553   </span><br><span class="line">days.with.cr.line  0.060101  0.263880           1.000000   0.229344   </span><br><span class="line">revol.bal          0.188748 -0.015553           0.229344   1.000000   </span><br><span class="line">revol.util         0.337109 -0.541289          -0.024239   0.203779   </span><br><span class="line">inq.last.6mths     0.029189 -0.185293          -0.041736   0.022394   </span><br><span class="line">delinq.2yrs       -0.021792 -0.216340           0.081374  -0.033243   </span><br><span class="line">pub.rec            0.006209 -0.147592           0.071826  -0.031010   </span><br><span class="line">not.fully.paid     0.037362 -0.149666          -0.029237   0.053699   </span><br><span class="line"></span><br><span class="line">                   revol.util  inq.last.6mths  delinq.2yrs   pub.rec  \</span><br><span class="line">credit.policy       -0.104095       -0.535511    -0.076318 -0.054243   </span><br><span class="line">int.rate             0.464837        0.202780     0.156079  0.098162   </span><br><span class="line">installment          0.081356       -0.010419    -0.004368 -0.032760   </span><br><span class="line">log.annual.inc       0.054881        0.029171     0.029203  0.016506   </span><br><span class="line">dti                  0.337109        0.029189    -0.021792  0.006209   </span><br><span class="line">fico                -0.541289       -0.185293    -0.216340 -0.147592   </span><br><span class="line">days.with.cr.line   -0.024239       -0.041736     0.081374  0.071826   </span><br><span class="line">revol.bal            0.203779        0.022394    -0.033243 -0.031010   </span><br><span class="line">revol.util           1.000000       -0.013880    -0.042740  0.066717   </span><br><span class="line">inq.last.6mths      -0.013880        1.000000     0.021245  0.072673   </span><br><span class="line">delinq.2yrs         -0.042740        0.021245     1.000000  0.009184   </span><br><span class="line">pub.rec              0.066717        0.072673     0.009184  1.000000   </span><br><span class="line">not.fully.paid       0.082088        0.149452     0.008881  0.048634   </span><br><span class="line"></span><br><span class="line">                   not.fully.paid  </span><br><span class="line">credit.policy           -0.158119  </span><br><span class="line">int.rate                 0.159552  </span><br><span class="line">installment              0.049955  </span><br><span class="line">log.annual.inc          -0.033439  </span><br><span class="line">dti                      0.037362  </span><br><span class="line">fico                    -0.149666  </span><br><span class="line">days.with.cr.line       -0.029237  </span><br><span class="line">revol.bal                0.053699  </span><br><span class="line">revol.util               0.082088  </span><br><span class="line">inq.last.6mths           0.149452  </span><br><span class="line">delinq.2yrs              0.008881  </span><br><span class="line">pub.rec                  0.048634  </span><br><span class="line">not.fully.paid           1.000000  </span><br></pre></td></tr></table></figure>
+<h2 id="2-2-数据预处理-2">2.2. 数据预处理</h2>
+<p>数据的预处理包括：数据的清洗、数据的采样、数据集划分、特征选择、特征降维、特征编码、规范化等过程。<br>
+下面重点强调一下“特征编码”和“数据集划分”这两个步骤：</p>
+<ul>
+<li><strong>特征编码</strong><br>
+在构建决策树时，每一个特征都应该是数值类型的，但是我们可以看出，purpose等列的取值都是字符型的（类别，categorical）。所以，必须经过一些转换，把这些类别都映射成为某个数值，才能进行后续步骤。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dic = defaultdict(LabelEncoder)</span><br><span class="line">x_trans = x.apply(<span class="keyword">lambda</span> x: dic[x.name].fit_transform(x))</span><br><span class="line"><span class="built_in">print</span>(x_trans.head())    <span class="comment"># 输出映射后的前5行数据</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">   credit.policy  purpose  int.rate  installment  log.annual.inc   dti  fico  \</span><br><span class="line">0              1        2        76         4665            1462  1887    25   </span><br><span class="line">1              1        1        50         2116            1143  1380    19   </span><br><span class="line">2              1        2       115         3240             348  1115    14   </span><br><span class="line">3              1        2        38         1375            1462   767    20   </span><br><span class="line">4              1        1       132          759            1410  1446    11   </span><br><span class="line"></span><br><span class="line">   days.with.cr.line  revol.bal  revol.util  inq.last.6mths  delinq.2yrs  \</span><br><span class="line">0               1663       6606         530               0            0   </span><br><span class="line">1                632       6849         778               0            0   </span><br><span class="line">2               1363       1628         260               1            0   </span><br><span class="line">3                609       6852         743               1            0   </span><br><span class="line">4               1132       2115         403               0            1   </span><br><span class="line"></span><br><span class="line">   pub.rec  </span><br><span class="line">0        0  </span><br><span class="line">1        0  </span><br><span class="line">2        0  </span><br><span class="line">3        0  </span><br><span class="line">4        0  </span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>数据集划分</strong><br>
+训练集和测试集的划分 将整个数据集拆分成：训练集和测试集。不过，如果我们将其直接划分为训练集和数据集，那么就会造成数据分布不均的问题。好在sklearn为我们提供了划分训练集和数据集的方法。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[x_train, x_test,    <span class="comment"># 特征值x的训练集和测试集</span></span><br><span class="line"> y_train, y_test     <span class="comment"># 目标值y的训练集和测试集</span></span><br><span class="line">] = train_test_split(x_trans, y, random_state=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-模型训练与预测-2">2.3. 模型训练与预测</h2>
+<p>sklearn 中使用 sklearn.tree.DecisionTreeClassifier 类来实现决策树算法，其构造方法包含许多参数，比较常用的有以下几个：</p>
+<p>（1）<strong>特征选择标准 criterion</strong></p>
+<blockquote>
+<ul>
+<li>可选值：“gini”（基尼系数，默认）或 “entropy”（信息熵）</li>
+<li>两种算法差异不大对准确率无影响，信息熵效率低一点，因为它有对数运算。一般说使用默认的基尼系数“gini”就可以了，即CART算法。</li>
+</ul>
+</blockquote>
+<p>（2）<strong>随机状态数 random_state</strong></p>
+<blockquote>
+<ul>
+<li>可选值：None（默认），int 或 RandomState</li>
+<li>如果传入值为整数，则它指定了随机数生成器的种子；如果传入值为RandomState实例，则指定了随机数生成器；如果传入值为None，则使用默认的随机数生成器。</li>
+</ul>
+</blockquote>
+<p>（3）<strong>特征划分标准 splitter</strong></p>
+<blockquote>
+<ul>
+<li>可选值：“best”（最佳，默认）或 “random”（随机）</li>
+<li>前者在特征的所有划分点中找出最优的划分点。后者是随机的在部分划分点中找局部最优的划分点。 默认的“best”适合样本量不大的时候，而如果样本数据量非常大，此时决策树构建推“random”。</li>
+</ul>
+</blockquote>
+<p>（4）<strong>决策树最大深度 max_depth</strong></p>
+<blockquote>
+<ul>
+<li>可选值：None（默认）或 int</li>
+<li>一般来说，数据少或者特征少的时候可以不管这个值。如果模型样本量多，特征也多的情况下，推荐限制这个最大深度，具体的取值取决于数据的分布。常用的可以取值10-100之间。常用来防止模型出现过拟合。</li>
+</ul>
+</blockquote>
+<p>（5）<strong>叶节点最少样本数 min_samples_leaf</strong></p>
+<blockquote>
+<ul>
+<li>可选值：int（默认为1）或 float</li>
+<li>如果值是 int型，则取传入值本身作为最小样本数；如果值是 float型，则取 ceil(min_samples_leaf * 样本数量) 的值作为最小样本数（ceil 函数的作用是向上取整）。min_samples_leaf 主要用于对决策树进行修剪，如果某叶子节点数目小于样本数，则会和兄弟节点一起被剪枝。</li>
+</ul>
+</blockquote>
+<p>（6）<strong>最大特征个数 max_features</strong></p>
+<blockquote>
+<ul>
+<li>可选值：None（默认），int，float 或 string（“auto”, “sqrt”, “log2”）</li>
+<li>max_features 一般配合 max_depth 使用，用作树的“精修”，它限制分枝时考虑的特征个数，超过限制个数的特征都会被舍弃。</li>
+</ul>
+</blockquote>
+<p>（7）<strong>节点划分最小不纯度 min_impurity_decrease</strong></p>
+<blockquote>
+<ul>
+<li>可选值：float（默认为0）</li>
+<li>min_impurity_decrease 限制了决策树的增长，如果某节点的不纯度（基尼系数，信息增益，均方差，绝对差）小于这个阈值，则该节点不再生成子节点。</li>
+</ul>
+</blockquote>
+<p>（8）<strong>内部节点再划分所需最小样本数 min_samples_split</strong></p>
+<blockquote>
+<ul>
+<li>可选值：int（默认为2）或 float</li>
+<li>如果值是 int型，则取传入值本身作为最小样本数；如果值是 float型，则取 ceil(min_samples_split * 样本数量) 的值作为最小样本数（ceil 函数的作用是向上取整）。</li>
+</ul>
+</blockquote>
+<p>我们这里暂时先采用默认参数来构造决策树模型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dt = DecisionTreeClassifier()    <span class="comment"># 以默认参数构建决策树模型</span></span><br><span class="line">dt.fit(x_train, y_train)         <span class="comment"># 训练模型</span></span><br><span class="line"></span><br><span class="line">dt_infer = dt.predict(x_test)    <span class="comment"># 预测结果</span></span><br><span class="line">dt_truth = <span class="built_in">list</span>(y_test)          <span class="comment"># 真实结果</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-4-模型评价-2">2.4. 模型评价</h2>
+<p><img src="https://img-blog.csdnimg.cn/821d0843671446aca2be1f7228bd15b9.jpeg#pic_center" alt=""><br>
+<img src="https://img-blog.csdnimg.cn/19d5ba67364748c684f302b31c758b23.jpeg#pic_center" alt=""><br>
+<img src="https://img-blog.csdnimg.cn/a0342710efb840dfad92bf373b292976.jpeg#pic_center" alt=""></p>
+<ul>
+<li><strong>预测准确率</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Accuracy \t %.8f&quot;</span> % accuracy_score(dt_truth, dt_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accuracy 	 0.73903967</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>混淆矩阵</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(confusion_matrix(dt_truth, dt_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[1668  324]</span><br><span class="line"> [ 301  102]]</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>分类报告</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(classification_report(dt_truth, dt_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">              precision    recall  f1-score   support</span><br><span class="line"></span><br><span class="line">           0       0.85      0.84      0.84      1992</span><br><span class="line">           1       0.24      0.25      0.25       403</span><br><span class="line"></span><br><span class="line">   micro avg       0.74      0.74      0.74      2395</span><br><span class="line">   macro avg       0.54      0.55      0.54      2395</span><br><span class="line">weighted avg       0.74      0.74      0.74      2395</span><br></pre></td></tr></table></figure>
+<h2 id="2-5-模型调优">2.5. 模型调优</h2>
+<p>模型的结果还可以通过优化来提升，在刚才的整个机器学习过程中，用的都是决策树的缺省值，下面通过设置DecisionTreeClassifier() 训练过程中的参数进行调优：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ndt = DecisionTreeClassifier(</span><br><span class="line">    max_depth=<span class="number">5</span>,            <span class="comment"># 决策树最大深度</span></span><br><span class="line">    min_samples_leaf=<span class="number">0.3</span>,   <span class="comment"># 叶节点最少样本数</span></span><br><span class="line">    max_features=<span class="number">1</span>          <span class="comment"># 最大特征个数</span></span><br><span class="line">)   <span class="comment"># 构建决策树模型</span></span><br><span class="line">ndt.fit(x_train, y_train)         <span class="comment"># 模型训练</span></span><br><span class="line">ndt_infer = ndt.predict(x_test)   <span class="comment"># 获取预测值</span></span><br><span class="line">ndt_truth = <span class="built_in">list</span>(y_test)          <span class="comment"># 获取真实值</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>预测准确率</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Accruacy \t %.8f&quot;</span> % accuracy_score(ndt_truth, ndt_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accruacy 	 0.83173278</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>混淆矩阵</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(confusion_matrix(ndt_truth, ndt_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[1992    0]</span><br><span class="line"> [ 403    0]]</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<h1>写在最后</h1>
+<ul>
+<li>如果您发现项目存在问题，或者如果您有更好的建议，欢迎在下方评论区中留言讨论~</li>
+<li>这是本项目的链接：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/projectdetail/716905?shared=1">实验项目 - AI Studio</a>，点击<code>fork</code>可直接在AI Studio运行~</li>
+<li>这是我的个人主页：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633">个人主页 - AI Studio</a>，来AI Studio互粉吧，等你哦~</li>
+</ul>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io">Kevin Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/">https://bo-henry.github.io/2020/08/15/【决策树】个人信贷风险预测/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://bo-henry.github.io" target="_blank">Kevin Tang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><a class="post-meta__tags" href="/tags/%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">分类问题</a></div><div class="post_share"><div class="social-share" data-image="/img/cover_img.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://jsdelivr.pai233.top/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/08/23/%E3%80%90KMeans%E3%80%91%E5%9F%BA%E4%BA%8E%E7%BB%8F%E7%BA%AC%E5%BA%A6%E7%9A%84%E5%9F%8E%E5%B8%82%E8%81%9A%E7%B1%BB/"><img class="prev-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【KMeans】基于经纬度的城市聚类</div></div></a></div><div class="next-post pull-right"><a href="/2020/08/11/%E3%80%90SVM%E3%80%91%E9%B8%A2%E5%B0%BE%E8%8A%B1%E5%88%86%E7%B1%BB/"><img class="next-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">【SVM】鸢尾花分类</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/08/11/%E3%80%90SVM%E3%80%91%E9%B8%A2%E5%B0%BE%E8%8A%B1%E5%88%86%E7%B1%BB/" title="【SVM】鸢尾花分类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-11</div><div class="title">【SVM】鸢尾花分类</div></div></a></div><div><a href="/2020/08/23/%E3%80%90KMeans%E3%80%91%E5%9F%BA%E4%BA%8E%E7%BB%8F%E7%BA%AC%E5%BA%A6%E7%9A%84%E5%9F%8E%E5%B8%82%E8%81%9A%E7%B1%BB/" title="【KMeans】基于经纬度的城市聚类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-23</div><div class="title">【KMeans】基于经纬度的城市聚类</div></div></a></div><div><a href="/2021/07/17/%E3%80%90Sarsa&Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-17</div><div class="title">【Sarsa＆Q-learning】表格型方法</div></div></a></div><div><a href="/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/" title="【线性回归】商品销量预测"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-05</div><div class="title">【线性回归】商品销量预测</div></div></a></div><div><a href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-10</div><div class="title">强化学习相关理论基础</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Twikoo</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/404_friend.gif'" alt="avatar"/></div><div class="author-info__name">Kevin Tang</div><div class="author-info__description">心在哪里，风景就在哪里</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://blog.csdn.net/TXK_Kevin?type=blog"><i class="fa fa-rss"></i><span>Follow CSDN</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/XinKai-Tang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633" target="_blank" title="AI Studio"><i class="fab fa-paypal"></i></a><a class="social-icon" href="mailto:kevin-tang@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Hi, welcome to my blog!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">1. 项目准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E9%97%AE%E9%A2%98%E5%AF%BC%E5%85%A5-11"><span class="toc-text">1.1. 问题导入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E6%95%B0%E6%8D%AE%E9%9B%86%E7%AE%80%E4%BB%8B-9"><span class="toc-text">1.2. 数据集简介</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">2. 实验步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-0-%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97-3"><span class="toc-text">2.0. 导入模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-text">2.1. 数据预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86-2"><span class="toc-text">2.2. 数据预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%B8%8E%E9%A2%84%E6%B5%8B-2"><span class="toc-text">2.3. 模型训练与预测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BB%B7-2"><span class="toc-text">2.4. 模型评价</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E6%A8%A1%E5%9E%8B%E8%B0%83%E4%BC%98"><span class="toc-text">2.5. 模型调优</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">写在最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【UNet3+】遥感影像分割"/></a><div class="content"><a class="title" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割">【UNet3+】遥感影像分割</a><time datetime="2022-06-19T16:00:00.000Z" title="发表于 2022-06-20 00:00:00">2022-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【ResNet】肺炎CT影像识别"/></a><div class="content"><a class="title" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别">【ResNet】肺炎CT影像识别</a><time datetime="2022-05-30T16:00:00.000Z" title="发表于 2022-05-31 00:00:00">2022-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【DQN】基于价值的强化学习方法"/></a><div class="content"><a class="title" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法">【DQN】基于价值的强化学习方法</a><time datetime="2021-07-23T16:00:00.000Z" title="发表于 2021-07-24 00:00:00">2021-07-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【Sarsa＆Q-learning】表格型方法"/></a><div class="content"><a class="title" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法">【Sarsa＆Q-learning】表格型方法</a><time datetime="2021-07-16T16:00:00.000Z" title="发表于 2021-07-17 00:00:00">2021-07-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="强化学习相关理论基础"/></a><div class="content"><a class="title" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础">强化学习相关理论基础</a><time datetime="2021-07-09T16:00:00.000Z" title="发表于 2021-07-10 00:00:00">2021-07-10</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Kevin Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '2uIdkWJx5EqXJn89B8QtxrSR-gzGzoHsz',
+      appKey: 'UdKtAUs64MLpko3LlTLSrEdy',
+      avatar: 'monsterid',
+      placeholder: '如果您有好的想法，欢迎在评论区中留言讨论~\n昵称处填写QQ号可以快速填写QQ昵称与QQ邮箱哦~',
+      serverURLs: '',
+      emojiMaps: {"2233娘_卖萌":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_卖萌].png","2233娘_吃惊":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吃惊].png","2233娘_吐魂":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吐魂].png","2233娘_喝水":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_喝水].png","2233娘_困惑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_困惑].png","2233娘_大哭":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大哭].png","2233娘_大笑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大笑].png","2233娘_委屈":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_委屈].png","2233娘_怒":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_怒].png","2233娘_无言":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_无言].png","2233娘_汗":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_汗].png","2233娘_疑问":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_疑问].png","2233娘_第一":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_第一].png","2233娘_耶":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_耶].png","2233娘_郁闷":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_郁闷].png","btv_doge":"https://emotion.acs.pw/emotion/bilibili_tv_gif/doge.gif","btv_亲亲":"https://emotion.acs.pw/emotion/bilibili_tv_gif/亲亲.gif","btv_偷笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/偷笑.gif","btv_再见":"https://emotion.acs.pw/emotion/bilibili_tv_gif/再见.gif","btv_发怒":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发怒.gif","btv_发财":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发财.gif","btv_可爱":"https://emotion.acs.pw/emotion/bilibili_tv_gif/可爱.gif","btv_吐血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/吐血.gif","btv_呆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呆.gif","btv_呕吐":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呕吐.gif","btv_困":"https://emotion.acs.pw/emotion/bilibili_tv_gif/困.gif","btv_坏笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/坏笑.gif","btv_大佬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大佬.gif","btv_大哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大哭.gif","btv_委屈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/委屈.gif","btv_害羞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/害羞.gif","btv_尴尬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/尴尬.gif","btv_微笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/微笑.gif","btv_思考":"https://emotion.acs.pw/emotion/bilibili_tv_gif/思考.gif","btv_惊吓":"https://emotion.acs.pw/emotion/bilibili_tv_gif/惊吓.gif","btv_打脸":"https://emotion.acs.pw/emotion/bilibili_tv_gif/打脸.gif","btv_抓狂":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抓狂.gif","btv_抠鼻子":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抠鼻子.gif","btv_斜眼笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/斜眼笑.gif","btv_无奈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/无奈.gif","btv_晕":"https://emotion.acs.pw/emotion/bilibili_tv_gif/晕.gif","btv_流汗":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流汗.gif","btv_流鼻血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流鼻血.gif","btv_点赞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/点赞.gif","btv_生气":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生气.gif","btv_生病":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生病.gif","btv_疑问":"https://emotion.acs.pw/emotion/bilibili_tv_gif/疑问.gif","btv_白眼":"https://emotion.acs.pw/emotion/bilibili_tv_gif/白眼.gif","btv_睡着":"https://emotion.acs.pw/emotion/bilibili_tv_gif/睡着.gif","btv_笑哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/笑哭.gif","btv_腼腆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/腼腆.gif","btv_色":"https://emotion.acs.pw/emotion/bilibili_tv_gif/色.gif","btv_调皮":"https://emotion.acs.pw/emotion/bilibili_tv_gif/调皮.gif","btv_鄙视":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鄙视.gif","btv_闭嘴":"https://emotion.acs.pw/emotion/bilibili_tv_gif/闭嘴.gif","btv_难过":"https://emotion.acs.pw/emotion/bilibili_tv_gif/难过.gif","btv_馋":"https://emotion.acs.pw/emotion/bilibili_tv_gif/馋.gif","btv_黑人问号":"https://emotion.acs.pw/emotion/bilibili_tv_gif/黑人问号.gif","btv_鼓掌":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鼓掌.gif"},
+      enableQQ: true,
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://jsdelivr.pai233.top/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      document.getElementById('twikoo-count').innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://jsdelivr.pai233.top/npm/twikoo@1/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Valine' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://npm.elemecdn.com/leancloud-storage@3/dist/av-min.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/click-show-text.min.js" data-mobile="true" data-text="坚持真理,坚守理想,践行初心,担当使命,不怕牺牲,英勇斗争,对党忠诚,不负人民" data-fontsize="16px" data-random="false" async="async"></script><script>window.$crisp = [];
+window.CRISP_WEBSITE_ID = "ab72e8bd-a14d-4cbf-bf7d-ee26976f2477";
+(function () {
+  d = document;
+  s = d.createElement("script");
+  s.src = "https://client.crisp.chat/l.js";
+  s.async = 1;
+  d.getElementsByTagName("head")[0].appendChild(s);
+})();
+$crisp.push(["safe", true])
+
+if (true) {
+  $crisp.push(["do", "chat:hide"])
+  $crisp.push(["on", "chat:closed", function() {
+    $crisp.push(["do", "chat:hide"])
+  }])
+  var chatBtnFn = () => {
+    var chatBtn = document.getElementById("chat_btn")
+    chatBtn.addEventListener("click", function(){
+      $crisp.push(["do", "chat:show"])
+      $crisp.push(["do", "chat:open"])
+
+    });
+  }
+  chatBtnFn()
+} else {
+  if (false) {
+    function chatBtnHide () {
+      $crisp.push(["do", "chat:hide"])
+    }
+    function chatBtnShow () {
+      $crisp.push(["do", "chat:show"])
+    }
+  }
+}</script></div></body></html>

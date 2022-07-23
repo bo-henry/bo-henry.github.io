@@ -1,0 +1,375 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>【线性回归】商品销量预测 | Kevin Tang</title><meta name="keywords" content="机器学习,回归问题"><meta name="author" content="Kevin Tang"><meta name="copyright" content="Kevin Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="回归是用一条曲线去拟合指定点集分布的过程。如果拟合曲线是一条直线，则称为线性回归。请用线性回归模型根据以往在每件商品的广告费用和实际销量，预测未来商品的销量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【线性回归】商品销量预测">
+<meta property="og:url" content="https://bo-henry.github.io/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/index.html">
+<meta property="og:site_name" content="Kevin Tang">
+<meta property="og:description" content="回归是用一条曲线去拟合指定点集分布的过程。如果拟合曲线是一条直线，则称为线性回归。请用线性回归模型根据以往在每件商品的广告费用和实际销量，预测未来商品的销量。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bo-henry.github.io/img/cover_img.webp">
+<meta property="article:published_time" content="2020-08-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-23T15:07:19.490Z">
+<meta property="article:author" content="Kevin Tang">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="回归问题">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bo-henry.github.io/img/cover_img.webp"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://bo-henry.github.io/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":250},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://jsdelivr.pai233.top/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【线性回归】商品销量预测',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-23 23:07:19'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mycss.css"><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/404_friend.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/cover_img.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Kevin Tang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-book"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fas fa-images"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言版</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 更多</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></li><li><a class="site-page child" href="/myself/"><i class="fa-fw fas fa-id-card"></i><span> 关于</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">【线性回归】商品销量预测</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2020-08-04T16:00:00.000Z" title="发表于 2020-08-05 00:00:00">2020-08-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">机器学习笔记</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1>1. 项目准备</h1>
+<h2 id="1-1-回归问题">1.1. 回归问题</h2>
+<p>回归模型可以理解为：存在一个点集，用一条曲线去拟合它分布的过程。<br>
+如果拟合曲线是一条直线，则称为线性回归。如果是一条二次曲线，则被称为二次回归。</p>
+<h2 id="1-2-问题导入">1.2. 问题导入</h2>
+<p>请根据以往在每件商品的广告费用和实际销量，预测未来商品的销量。</p>
+<h2 id="1-3-数据集简介">1.3. 数据集简介</h2>
+<p>数据共4列200行，每一行为一个特定的商品，前3列为输入特征，最后一列为输出特征。</p>
+<ul>
+<li><em>输入特征</em><br>
+TV：该商品用于电视上的广告费用（以千元为单位，下同）<br>
+Radio：在广播媒体上投资的广告费用<br>
+Newspaper：用于报纸媒体上的广告费用</li>
+<li><em>输出特征</em><br>
+Sales：该商品的销量</li>
+</ul>
+<blockquote>
+<p>这是数据集的下载链接：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/datasetdetail/48663">商品广告费与销量数据集 - AI Studio</a></p>
+</blockquote>
+<hr>
+<h1>2. 实验步骤</h1>
+<h2 id="2-0-导入模块-2">2.0.导入模块</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure>
+<h2 id="2-1-数据获取">2.1. 数据获取</h2>
+<ul>
+<li><strong>获取并处理数据集</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df = pd.read_csv(<span class="string">&quot;Advertising.csv&quot;</span>)     <span class="comment"># 读取数据集</span></span><br><span class="line">x = df.drop(<span class="string">&quot;Sales&quot;</span>, axis=<span class="number">1</span>)  <span class="comment"># 提取特征值（除“Sales”外的所有字段的值）</span></span><br><span class="line">y = df[<span class="string">&quot;Sales&quot;</span>]               <span class="comment"># 提取目标值（字段“Sales”对应的字段值）</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>数据的描述性统计分析</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(df.describe().T)    <span class="comment"># T代表转置矩阵</span></span><br><span class="line"><span class="comment"># 表头：特征数据个数，平均值，标准差，最小值，1/4中位数，1/2中位数，3/4中位数，最大值</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">           count      mean        std  min     25%     50%      75%    max</span><br><span class="line">TV         200.0  147.0425  85.854236  0.7  74.375  149.75  218.825  296.4</span><br><span class="line">Radio      200.0   23.2640  14.846809  0.0   9.975   22.90   36.525   49.6</span><br><span class="line">Newspaper  200.0   30.5540  21.778621  0.3  12.750   25.75   45.100  114.0</span><br><span class="line">Sales      200.0   14.0225   5.217457  1.6  10.375   12.90   17.400   27.0</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>数据的相关性分析</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 相关系数绝对值越大，表示相关性越大；相关系数为正，表示正相关；相关系数为负，表示负相关</span></span><br><span class="line"><span class="built_in">print</span>(df.corr())</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">                 TV     Radio  Newspaper     Sales</span><br><span class="line">TV         1.000000  0.054809   0.056648  0.782224</span><br><span class="line">Radio      0.054809  1.000000   0.354104  0.576223</span><br><span class="line">Newspaper  0.056648  0.354104   1.000000  0.228299</span><br><span class="line">Sales      0.782224  0.576223   0.228299  1.000000</span><br></pre></td></tr></table></figure>
+<h2 id="2-2-数据预处理">2.2. 数据预处理</h2>
+<p>数据的预处理包括：数据的采样、数据的清洗、特征选择、特征降维、特征编码、规范化、数据集拆分等过程。<br>
+因为是已经清洗过的数据，因此我们下一步是进行训练集和测试集的划分，将整个数据集拆分成：训练集和测试集。<br>
+如果我们将其直接划分为训练集和数据集，那么就会造成数据分布不均的问题。好在sklearn为我们提供了划分训练集和数据集的方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[x_train, x_test,    <span class="comment"># 特征值x的训练集和测试集</span></span><br><span class="line"> y_train, y_test     <span class="comment"># 目标值y的训练集和测试集</span></span><br><span class="line">] = train_test_split(x, y, random_state=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-模型训练与预测">2.3. 模型训练与预测</h2>
+<ul>
+<li><strong>构建并训练模型</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lr = LinearRegression()          <span class="comment"># 采用默认参数构造模型</span></span><br><span class="line">lr.fit(x_train, y_train)         <span class="comment"># 用训练集进行模型训练</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>进行模型预测</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">lr_infer = lr.predict(x_test)    <span class="comment"># 用测试集进行模型预测</span></span><br><span class="line">lr_truth = <span class="built_in">list</span>(y_test)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Round\t Truth \t Infer&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(lr_infer)):   <span class="comment"># 输出实际值和预测值</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;%2s\t %5.2f \t %8.5f&quot;</span> % (i+<span class="number">1</span>, lr_truth[i], lr_infer[i]))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">Round	 Truth 	 Infer</span><br><span class="line"> 1	 23.80 	 21.70910</span><br><span class="line"> 2	 16.60 	 16.41055</span><br><span class="line"> 3	  9.50 	  7.60955</span><br><span class="line"> 4	 14.80 	 17.80770</span><br><span class="line"> 5	 17.60 	 18.61464</span><br><span class="line"> 6	 25.50 	 23.83574</span><br><span class="line"> 7	 16.90 	 16.32489</span><br><span class="line"> 8	 12.90 	 13.43226</span><br><span class="line"> 9	 10.50 	  9.17173</span><br><span class="line">10	 17.10 	 17.33385</span><br><span class="line">11	 14.50 	 14.44479</span><br><span class="line">12	 11.30 	  9.83512</span><br><span class="line">13	 17.40 	 17.18798</span><br><span class="line">14	 16.70 	 16.73087</span><br><span class="line">15	 13.40 	 15.05529</span><br><span class="line">16	 15.90 	 15.61434</span><br><span class="line">17	 12.90 	 12.42542</span><br><span class="line">18	 12.80 	 17.17716</span><br><span class="line">19	  9.50 	 11.08828</span><br><span class="line">20	 18.40 	 18.00538</span><br><span class="line">21	 10.70 	  9.28439</span><br><span class="line">22	 12.50 	 12.98458</span><br><span class="line">23	  8.50 	  8.79951</span><br><span class="line">24	 11.50 	 10.42382</span><br><span class="line">25	 11.90 	 11.38465</span><br><span class="line">26	 14.90 	 14.98083</span><br><span class="line">27	 10.10 	  9.78853</span><br><span class="line">28	 18.90 	 19.39643</span><br><span class="line">29	 19.60 	 18.18100</span><br><span class="line">30	 15.90 	 17.12808</span><br><span class="line">31	 23.20 	 21.54670</span><br><span class="line">32	 11.90 	 14.69809</span><br><span class="line">33	 17.30 	 16.24641</span><br><span class="line">34	 11.70 	 12.32115</span><br><span class="line">35	 20.20 	 19.92423</span><br><span class="line">36	 15.50 	 15.32499</span><br><span class="line">37	 11.50 	 13.88727</span><br><span class="line">38	 11.00 	 10.03162</span><br><span class="line">39	 22.30 	 20.93106</span><br><span class="line">40	  7.60 	  7.44937</span><br><span class="line">41	  5.30 	  3.64696</span><br><span class="line">42	  8.70 	  7.22020</span><br><span class="line">43	  6.70 	  5.99628</span><br><span class="line">44	 19.00 	 18.43382</span><br><span class="line">45	  5.50 	  8.39408</span><br><span class="line">46	 14.60 	 14.08371</span><br><span class="line">47	 14.60 	 15.02196</span><br><span class="line">48	 21.50 	 20.35836</span><br><span class="line">49	 22.60 	 20.57036</span><br><span class="line">50	 19.70 	 19.60637</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>绘制真实值和预测值对比图</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">plt.figure(figsize=[<span class="number">8</span>, <span class="number">6</span>])</span><br><span class="line">plt.title(<span class="string">&quot;Commodity Sales&quot;</span>, fontsize=<span class="number">25</span>)</span><br><span class="line">x = np.arange(<span class="number">5</span>, <span class="number">25</span>)</span><br><span class="line">plt.plot(x, x)      <span class="comment"># 绘制x-y等值线</span></span><br><span class="line">plt.xlabel(<span class="string">&quot;ground truth&quot;</span>, fontsize=<span class="number">18</span>)</span><br><span class="line">plt.ylabel(<span class="string">&quot;infer result&quot;</span>, fontsize=<span class="number">18</span>)</span><br><span class="line">plt.scatter(lr_truth, lr_infer, color=<span class="string">&quot;green&quot;</span>, label=<span class="string">&quot;sales&quot;</span>)</span><br><span class="line">plt.grid()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/f62ebb662c434f29b90093cb95101995.png#pic_center" alt=""></p>
+<h2 id="2-4-模型评价">2.4. 模型评价</h2>
+<p>对于分类问题，评价测度是准确率，但这种方法不适用于回归问题，回归问题需要使用针对连续数值的评价测度。<br>
+以下三种都可以，但我们一般选用第三种方法（<strong>均方根误差，Root Mean Squared Error，RMSE</strong>）。<br>
+<img src="https://img-blog.csdnimg.cn/e7ffb578dcaa42ada44d5fbd780442c0.jpeg#pic_center" alt=""></p>
+<ul>
+<li><strong>输出模型的相关信息</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cols = [<span class="string">&quot;TV&quot;</span>, <span class="string">&quot;Radio&quot;</span>, <span class="string">&quot;Newspaper&quot;</span>]</span><br><span class="line"><span class="keyword">for</span> i, val <span class="keyword">in</span> <span class="built_in">enumerate</span>(lr.coef_):   <span class="comment"># 输出各列的权重</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;%s 的权重\t %.5f&quot;</span> % (cols[i], val))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;截距\t\t %.5f&quot;</span> % lr.intercept_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练集上的评分\t %.5f&quot;</span> % lr.score(x_train, y_train))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试集上的评分\t %.5f&quot;</span> % lr.score(x_test, y_test))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TV 的权重	 0.04656</span><br><span class="line">Radio 的权重	 0.17916</span><br><span class="line">Newspaper 的权重	 0.00345</span><br><span class="line">截距		 2.87697</span><br><span class="line">训练集上的评分	 0.89031</span><br><span class="line">测试集上的评分	 0.91562</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>输出模型的评价测度</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mae_infer = metrics.mean_absolute_error(y_test, lr_infer)   <span class="comment"># MAE：平均绝对误差</span></span><br><span class="line">mse_infer = metrics.mean_squared_error(y_test, lr_infer)    <span class="comment"># MSE：均方差</span></span><br><span class="line">rmse_infer = np.sqrt(mse_infer)                  <span class="comment"># RMSE：均方根差，即MSE的平方根</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;MAE：%.6f \t MSE：%.6f \t RMSE：%.6f&quot;</span> % (mae_infer, mse_infer, rmse_infer))</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MAE：1.066892 	 MSE：1.973046 	 RMSE：1.404651</span><br></pre></td></tr></table></figure>
+<h2 id="2-5-模型优化">2.5. 模型优化</h2>
+<p>由于Newspaper和销量之间的相关性非常小 (约0.00345)，因此我们可以移除这个特征，然后看看线性回归模型预测结果的RMSE如何。</p>
+<ul>
+<li><strong>处理数据集</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x = df[[<span class="string">&quot;TV&quot;</span>, <span class="string">&quot;Radio&quot;</span>]]    <span class="comment"># 提取新的特征值x（“TV”和“Radio”字段的值）</span></span><br><span class="line">y = df[<span class="string">&quot;Sales&quot;</span>]            <span class="comment"># 提取新的目标值y（字段“Sales”的值）</span></span><br><span class="line">[x_train, x_test,     <span class="comment"># 特征值x的训练集和测试集</span></span><br><span class="line"> y_train, y_test      <span class="comment"># 目标值y的训练集和测试集</span></span><br><span class="line">] = train_test_split(x, y, random_state=<span class="number">1</span>)   <span class="comment"># 划分训练集和测试集</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>训练和测试模型</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nlr = LinearRegression()          <span class="comment"># 采用默认参数构建线性回归模型</span></span><br><span class="line">nlr.fit(x_train, y_train)         <span class="comment"># 用训练集进行模型训练</span></span><br><span class="line">nlr_infer = nlr.predict(x_test)   <span class="comment"># 用测试集进行模型预测</span></span><br><span class="line">nlr_truth = <span class="built_in">list</span>(y_test)          <span class="comment"># 获取实际数据</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>绘制真实值和预测值对比图</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">plt.figure(figsize=[<span class="number">8</span>, <span class="number">6</span>])</span><br><span class="line">plt.title(<span class="string">&quot;Commodity Sales&quot;</span>, fontsize=<span class="number">25</span>)</span><br><span class="line">x = np.arange(<span class="number">5</span>, <span class="number">25</span>)</span><br><span class="line">plt.plot(x, x)      <span class="comment"># 绘制x-y等值线</span></span><br><span class="line">plt.xlabel(<span class="string">&quot;ground truth&quot;</span>, fontsize=<span class="number">18</span>)</span><br><span class="line">plt.ylabel(<span class="string">&quot;infer result&quot;</span>, fontsize=<span class="number">18</span>)</span><br><span class="line">plt.scatter(lr_truth, lr_infer, <span class="number">30</span>, color=<span class="string">&quot;green&quot;</span>, label=<span class="string">&quot;old sales data&quot;</span>)</span><br><span class="line">plt.scatter(nlr_truth, nlr_infer, <span class="number">25</span>, color=<span class="string">&quot;red&quot;</span>, label=<span class="string">&quot;new sales data&quot;</span>)</span><br><span class="line">plt.legend(loc=<span class="string">&quot;upper left&quot;</span>, fontsize=<span class="number">16</span>)</span><br><span class="line">plt.grid()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/a2c5dfba6ee049079d5af8efa058d437.png#pic_center" alt=""></p>
+<ul>
+<li><strong>输出模型的相关信息</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vals = <span class="built_in">list</span>(nlr.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;TV列的权重\t %.5f&quot;</span> % vals[<span class="number">0</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Radio列的权重\t %.5f&quot;</span> % vals[<span class="number">1</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;截距\t\t %.5f&quot;</span> % nlr.intercept_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练集上的评分\t %.5f&quot;</span> % nlr.score(x_train, y_train))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试集上的评分\t %.5f&quot;</span> % nlr.score(x_test, y_test))</span><br><span class="line"></span><br><span class="line">mse_infer = metrics.mean_squared_error(y_test, nlr_infer)  <span class="comment"># MSE：均方误差</span></span><br><span class="line">rmse_infer = np.sqrt(mse_infer)                         <span class="comment"># RMSE：均方根误差</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;评价测度(RMSE)\t %.6f&quot;</span> % rmse_infer)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TV列的权重	 0.04660</span><br><span class="line">Radio列的权重	 0.18118</span><br><span class="line">截距		 2.92724</span><br><span class="line">训练集上的评分	 0.89015</span><br><span class="line">测试集上的评分	 0.91762</span><br><span class="line">评价测度(RMSE)	 1.387903</span><br></pre></td></tr></table></figure>
+<hr>
+<h1>3. 优化结论</h1>
+<ul>
+<li>由上面的结果可以看出，移除相关性较弱的特征后，均方根误差RMES会变得更小一点，模型的拟合效果也会更好。</li>
+<li>机器学习中有“奥卡姆剃刀”的原理，如果能够用简单模型解决问题，那么就不使用复杂模型，因为复杂模型往往增加了不确定性，造成过多的人力和物力成本，且容易过拟合。</li>
+</ul>
+<hr>
+<blockquote>
+<h1>写在最后</h1>
+<ul>
+<li>如果您发现项目存在问题，或者如果您有更好的建议，欢迎在下方评论区中留言讨论~</li>
+<li>这是本项目的链接：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/projectdetail/697188?shared=1">实验项目 - AI Studio</a>，点击<code>fork</code>可直接在AI Studio运行~</li>
+<li>这是我的个人主页：<a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633">个人主页 - AI Studio</a>，来AI Studio互粉吧，等你哦~</li>
+</ul>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io">Kevin Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://bo-henry.github.io/2020/08/05/%E3%80%90%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E3%80%91%E5%95%86%E5%93%81%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B/">https://bo-henry.github.io/2020/08/05/【线性回归】商品销量预测/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://bo-henry.github.io" target="_blank">Kevin Tang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><a class="post-meta__tags" href="/tags/%E5%9B%9E%E5%BD%92%E9%97%AE%E9%A2%98/">回归问题</a></div><div class="post_share"><div class="social-share" data-image="/img/cover_img.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://jsdelivr.pai233.top/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://jsdelivr.pai233.top/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/08/11/%E3%80%90SVM%E3%80%91%E9%B8%A2%E5%B0%BE%E8%8A%B1%E5%88%86%E7%B1%BB/"><img class="prev-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">【SVM】鸢尾花分类</div></div></a></div><div class="next-post pull-right"><a href="/2020/04/23/%E6%96%B0%E5%86%A0%E7%96%AB%E6%83%85%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%86%E6%9E%90/"><img class="next-cover" src="/img/cover_img.webp" onerror="onerror=null;src='/img/404.png'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">新冠疫情可视化分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/08/23/%E3%80%90KMeans%E3%80%91%E5%9F%BA%E4%BA%8E%E7%BB%8F%E7%BA%AC%E5%BA%A6%E7%9A%84%E5%9F%8E%E5%B8%82%E8%81%9A%E7%B1%BB/" title="【KMeans】基于经纬度的城市聚类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-23</div><div class="title">【KMeans】基于经纬度的城市聚类</div></div></a></div><div><a href="/2020/08/11/%E3%80%90SVM%E3%80%91%E9%B8%A2%E5%B0%BE%E8%8A%B1%E5%88%86%E7%B1%BB/" title="【SVM】鸢尾花分类"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-11</div><div class="title">【SVM】鸢尾花分类</div></div></a></div><div><a href="/2021/07/17/%E3%80%90Sarsa&Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-17</div><div class="title">【Sarsa＆Q-learning】表格型方法</div></div></a></div><div><a href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-10</div><div class="title">强化学习相关理论基础</div></div></a></div><div><a href="/2020/08/15/%E3%80%90%E5%86%B3%E7%AD%96%E6%A0%91%E3%80%91%E4%B8%AA%E4%BA%BA%E4%BF%A1%E8%B4%B7%E9%A3%8E%E9%99%A9%E9%A2%84%E6%B5%8B/" title="【决策树】个人信贷风险预测"><img class="cover" src="/img/cover_img.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-15</div><div class="title">【决策树】个人信贷风险预测</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Twikoo</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/404_friend.gif'" alt="avatar"/></div><div class="author-info__name">Kevin Tang</div><div class="author-info__description">心在哪里，风景就在哪里</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://blog.csdn.net/TXK_Kevin?type=blog"><i class="fa fa-rss"></i><span>Follow CSDN</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/XinKai-Tang" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="https://aistudio.baidu.com/aistudio/personalcenter/thirdview/118633" target="_blank" title="AI Studio"><i class="fab fa-paypal"></i></a><a class="social-icon" href="mailto:kevin-tang@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">Hi, welcome to my blog!</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">1. 项目准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E5%9B%9E%E5%BD%92%E9%97%AE%E9%A2%98"><span class="toc-text">1.1. 回归问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E9%97%AE%E9%A2%98%E5%AF%BC%E5%85%A5"><span class="toc-text">1.2. 问题导入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E6%95%B0%E6%8D%AE%E9%9B%86%E7%AE%80%E4%BB%8B"><span class="toc-text">1.3. 数据集简介</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">2. 实验步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-0-%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97-2"><span class="toc-text">2.0.导入模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="toc-text">2.1. 数据获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-text">2.2. 数据预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%B8%8E%E9%A2%84%E6%B5%8B"><span class="toc-text">2.3. 模型训练与预测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BB%B7"><span class="toc-text">2.4. 模型评价</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96"><span class="toc-text">2.5. 模型优化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">3. 优化结论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text">写在最后</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【UNet3+】遥感影像分割"/></a><div class="content"><a class="title" href="/2022/06/20/%E3%80%90UNet3+%E3%80%91%E9%81%A5%E6%84%9F%E5%BD%B1%E5%83%8F%E5%88%86%E5%89%B2/" title="【UNet3+】遥感影像分割">【UNet3+】遥感影像分割</a><time datetime="2022-06-19T16:00:00.000Z" title="发表于 2022-06-20 00:00:00">2022-06-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【ResNet】肺炎CT影像识别"/></a><div class="content"><a class="title" href="/2022/05/31/%E3%80%90ResNet%E3%80%91%E8%82%BA%E7%82%8ECT%E5%BD%B1%E5%83%8F%E8%AF%86%E5%88%AB/" title="【ResNet】肺炎CT影像识别">【ResNet】肺炎CT影像识别</a><time datetime="2022-05-30T16:00:00.000Z" title="发表于 2022-05-31 00:00:00">2022-05-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【DQN】基于价值的强化学习方法"/></a><div class="content"><a class="title" href="/2021/07/24/%E3%80%90DQN%E3%80%91%E5%9F%BA%E4%BA%8E%E4%BB%B7%E5%80%BC%E7%9A%84%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" title="【DQN】基于价值的强化学习方法">【DQN】基于价值的强化学习方法</a><time datetime="2021-07-23T16:00:00.000Z" title="发表于 2021-07-24 00:00:00">2021-07-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="【Sarsa＆Q-learning】表格型方法"/></a><div class="content"><a class="title" href="/2021/07/17/%E3%80%90Sarsa&amp;Q-learning%E3%80%91%E8%A1%A8%E6%A0%BC%E5%9E%8B%E6%96%B9%E6%B3%95/" title="【Sarsa＆Q-learning】表格型方法">【Sarsa＆Q-learning】表格型方法</a><time datetime="2021-07-16T16:00:00.000Z" title="发表于 2021-07-17 00:00:00">2021-07-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础"><img src="/img/cover_img.webp" onerror="this.onerror=null;this.src='/img/404.png'" alt="强化学习相关理论基础"/></a><div class="content"><a class="title" href="/2021/07/10/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/" title="强化学习相关理论基础">强化学习相关理论基础</a><time datetime="2021-07-09T16:00:00.000Z" title="发表于 2021-07-10 00:00:00">2021-07-10</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Kevin Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://jsdelivr.pai233.top/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '2uIdkWJx5EqXJn89B8QtxrSR-gzGzoHsz',
+      appKey: 'UdKtAUs64MLpko3LlTLSrEdy',
+      avatar: 'monsterid',
+      placeholder: '如果您有好的想法，欢迎在评论区中留言讨论~\n昵称处填写QQ号可以快速填写QQ昵称与QQ邮箱哦~',
+      serverURLs: '',
+      emojiMaps: {"2233娘_卖萌":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_卖萌].png","2233娘_吃惊":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吃惊].png","2233娘_吐魂":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_吐魂].png","2233娘_喝水":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_喝水].png","2233娘_困惑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_困惑].png","2233娘_大哭":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大哭].png","2233娘_大笑":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_大笑].png","2233娘_委屈":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_委屈].png","2233娘_怒":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_怒].png","2233娘_无言":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_无言].png","2233娘_汗":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_汗].png","2233娘_疑问":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_疑问].png","2233娘_第一":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_第一].png","2233娘_耶":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_耶].png","2233娘_郁闷":"https://twikoo-magic.oss-cn-hangzhou.aliyuncs.com/bilibili2233/[2233娘_郁闷].png","btv_doge":"https://emotion.acs.pw/emotion/bilibili_tv_gif/doge.gif","btv_亲亲":"https://emotion.acs.pw/emotion/bilibili_tv_gif/亲亲.gif","btv_偷笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/偷笑.gif","btv_再见":"https://emotion.acs.pw/emotion/bilibili_tv_gif/再见.gif","btv_发怒":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发怒.gif","btv_发财":"https://emotion.acs.pw/emotion/bilibili_tv_gif/发财.gif","btv_可爱":"https://emotion.acs.pw/emotion/bilibili_tv_gif/可爱.gif","btv_吐血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/吐血.gif","btv_呆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呆.gif","btv_呕吐":"https://emotion.acs.pw/emotion/bilibili_tv_gif/呕吐.gif","btv_困":"https://emotion.acs.pw/emotion/bilibili_tv_gif/困.gif","btv_坏笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/坏笑.gif","btv_大佬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大佬.gif","btv_大哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/大哭.gif","btv_委屈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/委屈.gif","btv_害羞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/害羞.gif","btv_尴尬":"https://emotion.acs.pw/emotion/bilibili_tv_gif/尴尬.gif","btv_微笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/微笑.gif","btv_思考":"https://emotion.acs.pw/emotion/bilibili_tv_gif/思考.gif","btv_惊吓":"https://emotion.acs.pw/emotion/bilibili_tv_gif/惊吓.gif","btv_打脸":"https://emotion.acs.pw/emotion/bilibili_tv_gif/打脸.gif","btv_抓狂":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抓狂.gif","btv_抠鼻子":"https://emotion.acs.pw/emotion/bilibili_tv_gif/抠鼻子.gif","btv_斜眼笑":"https://emotion.acs.pw/emotion/bilibili_tv_gif/斜眼笑.gif","btv_无奈":"https://emotion.acs.pw/emotion/bilibili_tv_gif/无奈.gif","btv_晕":"https://emotion.acs.pw/emotion/bilibili_tv_gif/晕.gif","btv_流汗":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流汗.gif","btv_流鼻血":"https://emotion.acs.pw/emotion/bilibili_tv_gif/流鼻血.gif","btv_点赞":"https://emotion.acs.pw/emotion/bilibili_tv_gif/点赞.gif","btv_生气":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生气.gif","btv_生病":"https://emotion.acs.pw/emotion/bilibili_tv_gif/生病.gif","btv_疑问":"https://emotion.acs.pw/emotion/bilibili_tv_gif/疑问.gif","btv_白眼":"https://emotion.acs.pw/emotion/bilibili_tv_gif/白眼.gif","btv_睡着":"https://emotion.acs.pw/emotion/bilibili_tv_gif/睡着.gif","btv_笑哭":"https://emotion.acs.pw/emotion/bilibili_tv_gif/笑哭.gif","btv_腼腆":"https://emotion.acs.pw/emotion/bilibili_tv_gif/腼腆.gif","btv_色":"https://emotion.acs.pw/emotion/bilibili_tv_gif/色.gif","btv_调皮":"https://emotion.acs.pw/emotion/bilibili_tv_gif/调皮.gif","btv_鄙视":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鄙视.gif","btv_闭嘴":"https://emotion.acs.pw/emotion/bilibili_tv_gif/闭嘴.gif","btv_难过":"https://emotion.acs.pw/emotion/bilibili_tv_gif/难过.gif","btv_馋":"https://emotion.acs.pw/emotion/bilibili_tv_gif/馋.gif","btv_黑人问号":"https://emotion.acs.pw/emotion/bilibili_tv_gif/黑人问号.gif","btv_鼓掌":"https://emotion.acs.pw/emotion/bilibili_tv_gif/鼓掌.gif"},
+      enableQQ: true,
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://jsdelivr.pai233.top/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-bcj7fson7-kevin-tang.vercel.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      document.getElementById('twikoo-count').innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://jsdelivr.pai233.top/npm/twikoo@1/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Valine' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://npm.elemecdn.com/leancloud-storage@3/dist/av-min.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://jsdelivr.pai233.top/npm/butterfly-extsrc@1/dist/click-show-text.min.js" data-mobile="true" data-text="坚持真理,坚守理想,践行初心,担当使命,不怕牺牲,英勇斗争,对党忠诚,不负人民" data-fontsize="16px" data-random="false" async="async"></script><script>window.$crisp = [];
+window.CRISP_WEBSITE_ID = "ab72e8bd-a14d-4cbf-bf7d-ee26976f2477";
+(function () {
+  d = document;
+  s = d.createElement("script");
+  s.src = "https://client.crisp.chat/l.js";
+  s.async = 1;
+  d.getElementsByTagName("head")[0].appendChild(s);
+})();
+$crisp.push(["safe", true])
+
+if (true) {
+  $crisp.push(["do", "chat:hide"])
+  $crisp.push(["on", "chat:closed", function() {
+    $crisp.push(["do", "chat:hide"])
+  }])
+  var chatBtnFn = () => {
+    var chatBtn = document.getElementById("chat_btn")
+    chatBtn.addEventListener("click", function(){
+      $crisp.push(["do", "chat:show"])
+      $crisp.push(["do", "chat:open"])
+
+    });
+  }
+  chatBtnFn()
+} else {
+  if (false) {
+    function chatBtnHide () {
+      $crisp.push(["do", "chat:hide"])
+    }
+    function chatBtnShow () {
+      $crisp.push(["do", "chat:show"])
+    }
+  }
+}</script></div></body></html>
